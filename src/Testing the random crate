@@ -1,0 +1,61 @@
+use rand::Rng;
+
+fn main(){
+    let mut random = rand::thread_rng();
+    
+    let number = random.gen_range(1..100);
+    
+    println!("{number}");
+    
+    generate_flips();
+    generate_chrs();
+}
+// it needs to be mutable, why??
+//the position of the next generated number is changed,
+
+//generate a flip if random heads or tails
+
+fn generate_flips(){
+    let mut random = rand::thread_rng();
+    
+    let mut collection:Vec<bool> = Vec::new();
+    
+    let mut flip_count = 0;
+    
+    while flip_count < 10 {
+        let my_bool = random.gen_bool(0.5);
+        if my_bool{
+            collection.push(my_bool);
+            println!("Heads");
+        }else{
+            collection.push(my_bool);
+            println!("Tails");
+        }
+        flip_count += 1;
+    }
+    
+    let true_counts = collection.iter().filter(|&&a| a == true).count();
+    let false_counts = flip_count - true_counts;
+    
+    println!("Heads:{true_counts}\nTails:{false_counts}");
+}
+
+fn generate_chrs(){
+    let characters = b"abcdefghijklmnopqrstuvwxyz";//It creates a byte string literal containing the byte representations of those characters.
+    
+    let mut random = rand::thread_rng();
+    let mut collection:Vec<char> = Vec::new();
+    
+    let mut character_count = 0;
+    
+    while character_count < 10{
+        let index = random.gen_range(0..characters.len()); // gives the range of the lenght of these characters from 0 - n
+        let rand_character = characters[index] as char;
+        
+        collection.push(rand_character);
+        println!("{rand_character}");
+        character_count += 1;
+    }
+    let collected_strings:String = collection.into_iter().collect();
+    println!("{collected_strings}");
+}

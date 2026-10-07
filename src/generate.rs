@@ -1,7 +1,8 @@
 use rand::Rng;
  
 fn generate_password(len:u8) -> String {
-    let characters = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/`~";
+    let characters = b"abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/`~";
+    let Upper_case = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     let mut generator = rand::thread_rng();
     let mut collection: Vec<char> = Vec::new();
     let mut n = 0;

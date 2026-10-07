@@ -30,7 +30,7 @@ fn main(){
         Commands::Hash => format!("Hashed: (Password)"),
         Commands::Retrieve => format!("Retrieving: (Password name)"),
         Commands::Upload => format!("Uploading to supabase.."),
-        Commands::Generate{length}=> format!("You generated: {}", generate(length)),
+        Commands::Generate{length}=> format!("You generated: {}", generate_password(length)),
     };
     
     println!("{}", result);

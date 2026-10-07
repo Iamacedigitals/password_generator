@@ -1,17 +1,28 @@
 use rand::Rng;
- 
-fn generate_password(len:u8) -> String {
-    let characters = b"abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/`~";
-    let Upper_case = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    let mut generator = rand::thread_rng();
+use rand::seq::SliceRandom;
+
+ fn generate_password(len:u8) -> String {
+    let mut rng = rand::thread_rng();
+
+    let all_chars = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/`~";
+    let upper_case = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let lower_case = b"abcdefghijklmnopqrstuvwxyz";
+    let numbers = b"0123456789";
+    let special_chr = b"!@#$%^&*()_+-=[]{}|;:',.<>?/`~";
+
     let mut collection: Vec<char> = Vec::new();
-    let mut n = 0;
-    while n < len{
-        let random_index = generator.gen_range(0..characters.len());
-        let value = characters[random_index] as char;
-        collection.push(value);
-        n+=1;
+
+    // guaranteed characters
+    collection.push(upper_case[rng.gen_range(0..upper_case.len())] as char);
+    collection.push(lower_case[rng.gen_range(0..lower_case.len())] as char);
+    collection.push(special_chr[rng.gen_range(0..special_chr.len())] as char);
+    collection.push(numbers[rng.gen_range(0..numbers.len())] as char);
+
+    // fill the rest
+    while collection.len() < len {
+        collection.push(all_chars[rng.gen_range(0..all_chars.len())] as char);
     }
-    let password = collection.into_iter().collect();
-    return password
-}
+
+    collection.shuffle(&mut rng); // so the upper/lower aren't always first
+    collection.into_iter().collect()
+ }

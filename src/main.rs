@@ -13,7 +13,7 @@ struct PswdGen{
 enum Commands{
     Generate{
         #[arg(short, long, default_value_t = 12)]
-        length:u8, //at least 12 elements
+        length:usize, //at least 12 elements
     },
     Upload,
     Decrypt,

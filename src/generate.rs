@@ -1,7 +1,7 @@
 use rand::Rng;
 use rand::seq::SliceRandom;
 
- fn generate_password(len:u8) -> String {
+ fn generate_password(len:usize) -> String {
     let mut rng = rand::thread_rng();
 
     let all_chars = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/`~";

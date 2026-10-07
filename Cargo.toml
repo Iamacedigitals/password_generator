@@ -1,8 +1,8 @@
 [package]
-name = "password_generator"
+name = "Pgen"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rand = "0.8"
-clap = "4"
+rand  = "0.8"
+clap = { version = "4", features = ["derive"] }

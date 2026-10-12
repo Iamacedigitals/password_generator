@@ -17,8 +17,9 @@ enum Commands{
     },
     Upload,
     Decrypt,
-    Hash,
-    Retrieve
+    Encrypt,
+    Retrieve,
+    Vault
 }
 
 
@@ -26,8 +27,9 @@ fn main(){
     
     let cli = PswdGen::parse();
     let result = match cli.functions{
+        Commands::Vault => format!("Vault Created"),
         Commands::Decrypt => format!("Decrypted (Password)"),
-        Commands::Hash => format!("Hashed: (Password)"),
+        Commands::Encrypt => format!("Hashed: (Password)"),
         Commands::Retrieve => format!("Retrieving: (Password name)"),
         Commands::Upload => format!("Uploading to supabase.."),
         Commands::Generate{length}=> format!("You generated: {}", generate_password(length)),

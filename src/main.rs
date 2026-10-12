@@ -1,6 +1,7 @@
-use clap::{Parser, Subcommand};
-mod generate;
+mod hasher; mod generate;
+use hasher::{hash, verify};
 use generate::generate_password;
+use clap::{Parser, Subcommand};
 
 
 #[derive(Debug, Parser)]
@@ -37,4 +38,3 @@ fn main(){
     
     println!("{}", result);
 }
-

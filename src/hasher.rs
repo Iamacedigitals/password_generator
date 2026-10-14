@@ -11,12 +11,12 @@ use aes_gcm::{
 };
 
 pub fn encrypt(
-    password: String,
+    text: String,
 ) -> Result<Aes256Gcm, Box<dyn std::error::Error>> {
     let mut salt = [0u8; 16];
     OsRng.fill_bytes(&mut salt);
 
-    let key = hash_out(&password, &salt)?;
+    let key = hash_out(&text, &salt)?;
 
     let cipher = Aes256Gcm::new_from_slice(&key).unwrap();
     Ok(cipher)

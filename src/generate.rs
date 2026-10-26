@@ -29,13 +29,18 @@ pub fn generate_password(len:usize) -> String {
 }
 
 pub fn generate_id(len: usize) -> String {
-    let mut collection: Vec<u8> = Vec::new();
+    let mut collection: Vec<char> = Vec::new();
     let mut rng = rand::thread_rng();
 
+    let all_chars = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let upper_case = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let lower_case = b"abcdefghijklmnopqrstuvwxyz";
+    let numbers = b"0123456789";
+
     while collection.len() < len {
-        collection.push(rng.gen_range(b'0'..=b'9'));
+        collection.push(all_chars[rng.gen_range(0..all_chars.len())] as char);
     }
-    let id:String = collection.into_iter().map(|value| value as char).collect();
+    let id:String = collection.into_iter().collect();
 
     return id
 }

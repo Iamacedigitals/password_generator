@@ -6,10 +6,11 @@ use rand::{Rng, RngCore, rngs::OsRng};
 use aes_gcm::{
     Aes256Gcm, AesGcm, Nonce, aead::{Aead, AeadCore, KeyInit, consts::U12, generic_array::GenericArray}
 };
+use crate::structs::Encryption_data;
 
 pub fn encrypt(
     password: String, text:String,
-) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+) -> Result<Encryption_data, Box<dyn std::error::Error>> {
 
     let mut salt = [0u8; 16];
     OsRng.fill_bytes(&mut salt);
@@ -26,9 +27,12 @@ pub fn encrypt(
     let plaintext = text.as_bytes();
 
     let cipher_text = cipher.encrypt(nonce, plaintext.as_ref()).expect("Encryption Failed");
-    Ok(cipher_text)
 
-    // multiple outputs
+    let data = Encryption_data{key: key, nonce_bytes:nonce.clone(), cipher_text:cipher_text, salt:salt};
+    Ok(data)
+
+    // multiple outputs, we have the needed key, nonce_bytes, cipher_text, salt
+    // create the struct 
 }
 
 pub fn decrypt(

@@ -1,21 +1,11 @@
-mod hasher; 
-mod generate;
-use generate::generate_password;
+mod hasher; mod structs; mod generate;
+use generate::{generate_password, generate_id};
+use structs::{Metadata, Blob_data};
 use clap::{Parser, Subcommand};
 use hasher::encrypt;
+use std::fs;
 
-struct Metadata{
-    id:String, 
-    salt:[u8; 16], 
-    nonce_bytes:[u8; 12],
-    cipher_text: Vec<u8>
-}
-struct Blob_data{
-    title: String,
-    id: String,
-    value: String,
-    last_update:String
-}
+
 // to be continued .. lets first work on the cli
 
 #[derive(Debug, Parser)]
@@ -60,6 +50,7 @@ fn main(){
         // implement vault creation, password validations and text_storage
         // text is stored in a json file format where te=
         Commands::CreateVault{ name ,password} =>{
+            let account_information = Metadata{id: generate_id(64), }// fill up this stuff with the data from the encryption
             format!("Created vault")
         },
         Commands::Vault{name, master_password, add, remove}=>{

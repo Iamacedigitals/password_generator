@@ -17,6 +17,7 @@ pub fn encrypt(
     let key = hash_out(&password, &salt)?;
 
     let cipher = Aes256Gcm::new_from_slice(&key).unwrap();
+
     let mut nonce_bytes:[u8; 12] = [0u8; 12];
     OsRng.fill_bytes(&mut nonce_bytes);
 
@@ -26,6 +27,8 @@ pub fn encrypt(
 
     let cipher_text = cipher.encrypt(nonce, plaintext.as_ref()).expect("Encryption Failed");
     Ok(cipher_text)
+
+    // multiple outputs
 }
 
 pub fn decrypt(

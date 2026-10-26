@@ -1,5 +1,6 @@
 use rand::Rng;
 use rand::seq::SliceRandom;
+use serde::de::value;
 
 pub fn generate_password(len:usize) -> String {
     let mut rng = rand::thread_rng();
@@ -25,4 +26,16 @@ pub fn generate_password(len:usize) -> String {
 
     collection.shuffle(&mut rng); // so the upper/lower aren't always first
     collection.into_iter().collect()
- }
+}
+
+pub fn generate_id(len: usize) -> String {
+    let mut collection: Vec<u8> = Vec::new();
+    let mut rng = rand::thread_rng();
+
+    while collection.len() < len {
+        collection.push(rng.gen_range(b'0'..=b'9'));
+    }
+    let id:String = collection.into_iter().map(|value| value as char).collect();
+
+    return id
+}

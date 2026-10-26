@@ -1,8 +1,8 @@
 mod hasher; mod structs; mod generate;
 use generate::{generate_password, generate_id};
-use structs::{Metadata, Blob_data};
+use structs::{Vault};
 use clap::{Parser, Subcommand};
-use hasher::encrypt;
+use hasher::encrypt_contents;
 use std::fs;
 
 
@@ -32,7 +32,9 @@ enum Commands{
     CreateVault {
         #[arg(short, long)]
         name: String,
+        email:String,
         password: String,
+        
     },
     Vault{
         name: String,
@@ -49,8 +51,8 @@ fn main(){
     let result = match cli.functions{
         // implement vault creation, password validations and text_storage
         // text is stored in a json file format where te=
-        Commands::CreateVault{ name ,password} =>{
-            let account_information = Metadata{id: generate_id(64), }// fill up this stuff with the data from the encryption
+        Commands::CreateVault{name: name, email:email, password:password} =>{
+            let mut myVault = Vault::new(name,email,password);// fill up this stuff with the data from the encryption
             format!("Created vault")
         },
         Commands::Vault{name, master_password, add, remove}=>{
@@ -59,7 +61,7 @@ fn main(){
         Commands::Decrypt => format!("Decrypted (Password)"),
 
         Commands::Encrypt{password, text} => {
-            encrypt(password, text).unwrap();
+            encrypt_contents(password, text).unwrap();
             format!("Hashed: (Password)")
         },
         Commands::Retrieve => format!("Retrieving: (Password name)"),

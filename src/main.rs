@@ -60,7 +60,7 @@ fn main(){
         } =>{
 
             let mut myVault = Vault::new(name,email,password).unwrap();// fill up this stuff with the data from the encryption
-
+            println!("{}",myVault.vault_profile.vault_id);
             format!("Created vault")
         },
         Commands::Vault{name, master_password, add, remove}=>{

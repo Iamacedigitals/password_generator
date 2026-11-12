@@ -32,7 +32,9 @@ enum Commands{
     CreateVault {
         #[arg(short, long)]
         name: String,
+        #[arg(short, long)]
         email:String,
+        #[arg(short, long)]
         password: String,
         
     },
@@ -51,8 +53,14 @@ fn main(){
     let result = match cli.functions{
         // implement vault creation, password validations and text_storage
         // text is stored in a json file format where te=
-        Commands::CreateVault{name: name, email:email, password:password} =>{
-            let mut myVault = Vault::new(name,email,password);// fill up this stuff with the data from the encryption
+        Commands::CreateVault{
+            name: name, 
+            email:email, 
+            password:password
+        } =>{
+
+            let mut myVault = Vault::new(name,email,password).unwrap();// fill up this stuff with the data from the encryption
+
             format!("Created vault")
         },
         Commands::Vault{name, master_password, add, remove}=>{

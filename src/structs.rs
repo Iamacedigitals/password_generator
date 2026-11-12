@@ -13,7 +13,13 @@ pub struct Vault{
 }
 
 impl Vault{
-    pub fn new(name: String, email: String, master_password: String) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(
+        name: String, 
+        email: String, 
+        master_password: String
+    ) -> 
+    Result<Self, Box<dyn std::error::Error>> {
+
     let metadata = encrypt_contents(master_password, "vault-verifier".to_string())?;
 
     Ok(Vault {
@@ -24,8 +30,9 @@ impl Vault{
         },
         metadata,
         content: Vec::new(),
-    })
-}
+        })
+    }
+
     
 }
 
@@ -35,6 +42,7 @@ pub struct Profile {
     vault_id: String
 }
 
+// #derive[(Debug)]
 pub struct Encryption_data{
     // implement getters and setters later
     pub nonce_bytes:GenericArray<u8, U12>, 

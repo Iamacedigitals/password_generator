@@ -10,6 +10,30 @@ use crate::structs::Encryption_data;
 
 //pub encrypt_vault() -> Result<(), Box<dyn std::error::Error>>{}
 
+pub fn encrypt_password(password: String) -> Result<Encryption_data, Box<dyn std::error::Error>>{
+    let mut salt = [0u8; 16];
+    OsRng.fill_bytes(&mut salt);
+    let key = generate_key(&password, &salt)?; // unwraps the value of key
+
+    let cipher = Aes256Gcm::new_from_slice(&key)
+        .map_err(|e| format!("invalid key length: {e}"))?;
+
+    let mut nonce_bytes = [0u8; 12]; // from consts::U12
+    OsRng.fill_bytes(&mut nonce_bytes);
+    let nonce = Nonce::from_slice(&nonce_bytes);
+
+    let cipher_text = cipher
+        .encrypt(nonce, password.as_bytes())
+        .map_err(|e| format!("encryption failed: {e}"))?;
+
+    Ok(Encryption_data {
+        nonce_bytes: nonce.clone(),
+        cipher_text,
+        salt,
+    })
+}
+
+
 pub fn encrypt_contents(
     password: String,
     text: String,

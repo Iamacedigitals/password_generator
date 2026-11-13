@@ -1,9 +1,11 @@
-mod hasher; mod structs; mod generate;
+mod hasher; mod structs; mod generate; mod json_parser;
+use json_parser::{save_login};
 use generate::{generate_password, generate_id};
 use structs::{Vault};
 use clap::{Parser, Subcommand};
 use hasher::encrypt_contents;
 use std::fs;
+
 
 
 // to be continued .. lets first work on the cli
@@ -38,12 +40,7 @@ enum Commands{
         password: String,
         
     },
-    Vault{
-        name: String,
-        master_password: String,
-        add: String,
-        remove: String // enter Id/title to remove
-    }
+    StartVault
 }
 
 
@@ -60,10 +57,27 @@ fn main(){
         } =>{
 
             let mut myVault = Vault::new(name,email,password).unwrap();// fill up this stuff with the data from the encryption
-            println!("{}",myVault.vault_profile.vault_id);
+            let id = myVault.vault_profile.vault_id.clone();
+            save_login(myVault);
+            /*creating a new vault gives us a struct with some properties... these properties include   
+            vault profile, meta data and content;
+
+            vault profile contains the user data and saves login information for further authentication. 
+            It includes: Name, Email, vault id() Unique id not exactly the primary key. the Email is the primary key instead of letting the user guess their own usernames. 
+            users can set their own custo user names later
+
+            meta data includes the encryption data. 
+            it includes the nonce bytes, cipher text and salt, 
+            this is what will be used for the user authenication later on. its type is Encryption_Data
+
+            content.. this containse the content and the information that is actuall being encrypted and its related meta data
+            
+            */
+            println!("{id}");
             format!("Created vault")
         },
-        Commands::Vault{name, master_password, add, remove}=>{
+        Commands::StartVault=>{
+            Vault::start_vault();
             format!("Vault updated")
         }
         Commands::Decrypt => format!("Decrypted (Password)"),

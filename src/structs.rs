@@ -1,11 +1,17 @@
 use aes_gcm::{
     aead::{consts::U12, generic_array::GenericArray}
 };
-use crate::{generate::{generate_id, generate_password},hasher::{encrypt_contents}};
+use crate::{
+    generate::{generate_id, generate_password},
+    hasher::{encrypt_contents, encrypt_password},
+    json_parser
+};
+use serde::{Deserialize, Serialize};
 
-use std::io;
+use std::{io, io::{BufReader}, fs ,fs::{File}};
 //struct App{}
 
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Vault{
     pub vault_profile: Profile,
     // Encryption details as metadata
@@ -34,7 +40,8 @@ impl Vault{
         })
     }
 
-    fn start_vault(){
+    pub fn start_vault() -> Result<(), Box<dyn std::error::Error>>{
+        // Login Prompt for the vault in total
         println!("Hello User. Are You new here? If YES Click (Y) if No Click (N)");
         let mut input = String::new();
         println!("(Y)/(N): ");
@@ -47,6 +54,7 @@ impl Vault{
 
         input.clear();
 
+        // Input validation
         if decision.to_lowercase() == "y" {
             println!("Create new account!");
             println!("Enter your email: ");
@@ -71,8 +79,8 @@ impl Vault{
 
             input.clear();
 
-            println!("Enter your new password / generate_random strong password: ");
-            println!("(N - personal password) / (R - random password): ");
+            println!("Enter your new password / generate_random strong password: \n Best Practice is to use your own password;");
+            println!("(N - personal password) / (R - random password): Enter Instruction to continue; ");
 
             io::stdin()
             .read_line(&mut input)
@@ -84,37 +92,57 @@ impl Vault{
 
             if should_random_generate == "n"{
 
+                println!("
+                Enter Your Personal password. \n 
+                Please Ensure that the Length is minimum of 8 characters with at least one Cap, one lower and one special character \n
+                ");
+
                 io::stdin()
                 .read_line(&mut input)
                 .expect("Invalid: Couldnt Parse Entry");
                 
                 let password =  input.trim().to_string();
 
+                // Encrypting master password. Saving to the json file called Passwords.json
+
+                let password_data = encrypt_password(password)?;
+
+
+                // profile(name, email, vault-id), metadata(nonce, salt, cipher_text), content
+
+                // Start the saving process from main since save login takes in the vault
                 input.clear();
 
             } else if should_random_generate == "r"{
                 let password = generate_password(16);
+
+                // Encrypting master password. Saving to the json file called Passwords.json 
             }
 
             input.clear();
-            //validate input
+            // Sign-up validate ends here
 
         } else if decision.to_lowercase() == "n"{
+            // code for validating existing users
             println!("Loading Validation")
         }
 
         let username = 0;
+
+        Ok(())
     }
 
 }
 
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub name: String,
     pub email: String,
     pub vault_id: String
 }
 
-// #derive[(Debug)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Encryption_data{
     // implement getters and setters later
     pub nonce_bytes:GenericArray<u8, U12>, 
@@ -122,8 +150,10 @@ pub struct Encryption_data{
     pub salt:[u8;16],
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Content{
     pub id: String,
     pub title: String,
     pub metadata: Encryption_data
 }
+

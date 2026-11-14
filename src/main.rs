@@ -77,7 +77,7 @@ fn main(){
             format!("Created vault")
         },
         Commands::StartVault=>{
-            Vault::start_vault();
+            Vault::start_vault().unwrap();
             format!("Vault updated")
         }
         Commands::Decrypt => format!("Decrypted (Password)"),

@@ -4,14 +4,14 @@ use aes_gcm::{
 use crate::{
     generate::{generate_id, generate_password},
     hasher::{encrypt_contents, encrypt_password},
-    json_parser
+    json_parser::{save_login},
 };
 use serde::{Deserialize, Serialize};
 
 use std::{io, io::{BufReader}, fs ,fs::{File}};
 //struct App{}
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Vault{
     pub vault_profile: Profile,
     // Encryption details as metadata
@@ -103,19 +103,26 @@ impl Vault{
                 
                 let password =  input.trim().to_string();
 
-                // Encrypting master password. Saving to the json file called Passwords.json
+                // Encrypting master password. Saving to the json file called data.json
+                
+                let new_vault =  Vault::new(name, email, password.clone())?;
 
-                let password_data = encrypt_password(password)?;
+                save_login(new_vault);
 
-
-                // profile(name, email, vault-id), metadata(nonce, salt, cipher_text), content
+                // profile(name, email, vault-id), 
+                // metadata(nonce, salt, cipher_text), 
+                // content, already contains the empty vector for contents
 
                 // Start the saving process from main since save login takes in the vault
                 input.clear();
 
             } else if should_random_generate == "r"{
+                // randomly generates a password
                 let password = generate_password(16);
 
+                let new_vault = Vault::new(name, email, password)?;
+
+                save_login(new_vault);
                 // Encrypting master password. Saving to the json file called Passwords.json 
             }
 
@@ -128,21 +135,20 @@ impl Vault{
         }
 
         let username = 0;
-
         Ok(())
     }
 
 }
 
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Profile {
     pub name: String,
     pub email: String,
     pub vault_id: String
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Encryption_data{
     // implement getters and setters later
     pub nonce_bytes:GenericArray<u8, U12>, 
@@ -150,7 +156,7 @@ pub struct Encryption_data{
     pub salt:[u8;16],
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Content{
     pub id: String,
     pub title: String,

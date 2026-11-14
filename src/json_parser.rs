@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::{io, io::{BufWriter, Write, BufReader}, fs ,fs::{File}};
-use crate::{structs::{Content, Vault, Encryption_data, Profile}};
+use crate::{hasher::decrypt_blob, structs::{Content, Encryption_data, Profile, Vault}};
 
 const PATH: &str = "data.json";
 
@@ -26,10 +26,24 @@ pub fn save_login(new_vault: Vault) -> Result<(), Box<dyn std::error::Error>> {
     save_vaults(&vaults)
 }
 
-pub fn retrieve_login(){}
 
 pub fn retrieve_content(){}
 
 pub fn add_content(){}
 
-pub fn validate_login(){}
+pub fn validate_login(email: String, master_password: &str) -> Result<Option<Vault>, Box<dyn std::error::Error>> {
+    let vaults = load_vaults()?;
+
+    // Find the vault for this email
+    let Some(vault) = vaults.into_iter().find(|v| v.vault_profile.email == email) else {
+        return Ok(None);
+    };
+
+
+    // Check the password against the vault's stored cipher text
+    if decrypt_blob(master_password, &vault)? {
+        Ok(Some(vault))
+    } else {
+        Ok(None)
+    }
+}

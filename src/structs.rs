@@ -3,8 +3,8 @@ use aes_gcm::{
 };
 use crate::{
     generate::{generate_id, generate_password},
-    hasher::{encrypt_contents, encrypt_password},
-    json_parser::{save_login},
+    hasher::{encrypt_contents},
+    json_parser::{save_login, validate_login},
 };
 use serde::{Deserialize, Serialize};
 
@@ -31,9 +31,9 @@ impl Vault{
 
     Ok(Vault {
         vault_profile: Profile {
-            name,
+            name: name.clone(),
             email,              // can serve as recovery email
-            vault_id: generate_id(16),
+            vault_id: name.clone() + generate_id(16).as_str(),
         },
         metadata,
         content: Vec::new(),
@@ -93,15 +93,15 @@ impl Vault{
             if should_random_generate == "n"{
 
                 println!("
-                Enter Your Personal password. \n 
-                Please Ensure that the Length is minimum of 8 characters with at least one Cap, one lower and one special character \n
+Enter Your Personal password. \n 
+Please Ensure that the Length is minimum of 8 characters with at least one Cap, one lower and one special character \n
                 ");
 
                 io::stdin()
                 .read_line(&mut input)
                 .expect("Invalid: Couldnt Parse Entry");
                 
-                let password =  input.trim().to_string();
+                let password =  input.trim().to_string(); // add password validation to it later
 
                 // Encrypting master password. Saving to the json file called data.json
                 
@@ -131,7 +131,36 @@ impl Vault{
 
         } else if decision.to_lowercase() == "n"{
             // code for validating existing users
-            println!("Loading Validation")
+            println!("Loading Validation__");
+            println!("Enter Your Email: ");
+
+            io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read String");
+
+            let email = input.trim().to_string();
+
+            input.clear();
+
+            println!("Enter Your Password: ");
+            io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read String");
+
+            let password = input.trim().to_string();
+
+            input.clear();
+
+            let my_vault = match validate_login(email, password.as_str())?{
+                Some(Vault) =>{
+                    println!("Accont Login Successful: Welcome Back {}, id {}", Vault.vault_profile.name, Vault.vault_profile.vault_id)
+                },
+                None=>{
+                    println!("Login Failed Wrong Password or email");
+
+                }
+            };
+
         }
 
         let username = 0;

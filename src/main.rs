@@ -1,10 +1,9 @@
 mod hasher; mod structs; mod generate; mod json_parser;
 use json_parser::{save_login};
-use generate::{generate_password, generate_id};
+use generate::{generate_password};
 use structs::{Vault};
 use clap::{Parser, Subcommand};
 use hasher::encrypt_contents;
-use std::fs;
 
 
 
@@ -24,7 +23,7 @@ enum Commands{
     }, // useful
 
     Upload,// useful for the supabase datablob saving
-    Decrypt, // useful for testing
+    Decrypt, // useful for testing -- already done, but use to decrypt contents
     Encrypt{
         #[arg(short, long)]
         password: String, 
@@ -51,14 +50,14 @@ fn main(){
         // implement vault creation, password validations and text_storage
         // text is stored in a json file format where te=
         Commands::CreateVault{
-            name: name, 
-            email:email, 
-            password:password
+            name, 
+            email, 
+            password
         } =>{
 
-            let mut myVault = Vault::new(name,email,password).unwrap();// fill up this stuff with the data from the encryption
-            let id = myVault.vault_profile.vault_id.clone();
-            save_login(myVault);
+            let my_vault = Vault::new(name,email,password).unwrap();// fill up this stuff with the data from the encryption
+            let id = my_vault.vault_profile.vault_id.clone();
+            save_login(my_vault).unwrap();
             /*creating a new vault gives us a struct with some properties... these properties include   
             vault profile, meta data and content;
 

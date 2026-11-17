@@ -1,10 +1,10 @@
-mod hasher; mod structs; mod generate; mod login;
+mod hasher; mod structs; mod generate; mod login; mod sessions;
 use login::{save_login};
 use generate::{generate_password};
 use structs::{Vault};
 use clap::{Parser, Subcommand};
 use hasher::encrypt_contents;
-
+use std::process::ExitCode;
 
 
 // to be continued .. lets first work on the cli
@@ -17,19 +17,6 @@ struct PswdGen{
 
 #[derive(Debug, Subcommand)]
 enum Commands{
-    Generate{
-        #[arg(short, long, default_value_t = 12)]
-        length:usize, //at least 12 elements
-    }, // useful
-
-    Upload,// useful for the supabase datablob saving
-    Decrypt, // useful for testing -- already done, but use to decrypt contents
-    Encrypt{
-        #[arg(short, long)]
-        password: String, 
-        text:String
-    },// useful for testing
-    Retrieve,
     CreateVault {
         #[arg(short, long)]
         name: String,
@@ -58,6 +45,22 @@ fn main(){
             let my_vault = Vault::new(name,email,password).unwrap();// fill up this stuff with the data from the encryption
             let id = my_vault.vault_profile.vault_id.clone();
             save_login(my_vault).unwrap();
+            println!("Created vault");
+            ExitCode::SUCCESS
+        },
+        Commands::StartVault=>{
+            
+            if let Err(e) = Vault::start_vault(){
+                println!("{e}");
+                std::process::exit(1); 
+            };
+            ExitCode:: SUCCESS
+        }
+    };
+}
+
+
+
             /*creating a new vault gives us a struct with some properties... these properties include   
             vault profile, meta data and content;
 
@@ -72,26 +75,3 @@ fn main(){
             content.. this containse the content and the information that is actuall being encrypted and its related meta data
             
             */
-            println!("{id}");
-            format!("Created vault")
-        },
-        Commands::StartVault=>{
-            if let Err(e) = Vault::start_vault(){
-                println!("{e}");
-                std::process::exit(1); 
-            };
-            format!("Vault")
-        }
-        Commands::Decrypt => format!("Decrypted (Password)"),
-
-        Commands::Encrypt{password, text} => {
-            encrypt_contents(password, text).unwrap();
-            format!("Hashed: (Password)")
-        },
-        Commands::Retrieve => format!("Retrieving: (Password name)"),
-        Commands::Upload => format!("Uploading to supabase.."),
-        Commands::Generate{length}=> format!("You generated: {}", generate_password(length)),
-    };
-    
-    println!("{}", result);
-}

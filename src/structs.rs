@@ -8,7 +8,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-use std::{io, io::{BufReader}, fs ,fs::{File}};
+use std::{io, io::{BufReader}, fs ,fs::{File}, process::ExitCode};
 //struct App{}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -40,11 +40,10 @@ impl Vault{
         })
     }
 
-    pub fn start_vault() -> Result<(), Box<dyn std::error::Error>>{
+    pub fn start_vault() -> Result<ExitCode, Box<dyn std::error::Error>>{
         // Login Prompt for the vault in total
         login()?;
-        println!("Login Succes");
-        Ok(())
+        Ok(ExitCode::SUCCESS)
     }
 
 }

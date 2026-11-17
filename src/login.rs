@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{fs::{self, File}, io::{self, BufReader, BufWriter, Error, Write}};
+use std::{fs::{self, File}, io::{self, BufReader, BufWriter, Error, Write}, process::ExitCode};
 use crate::{hasher::decrypt_blob, structs::{Content, Encryption_data, Profile, Vault}, generate::generate_password};
 
 const PATH: &str = "data.json";
@@ -20,7 +20,7 @@ pub fn load_vaults() -> Result<Vec<Vault>, Box<dyn std::error::Error>> {
     Ok(serde_json::from_reader(BufReader::new(file))?)
 }
 
-pub fn login() -> Result<(), Box<dyn std::error::Error>>{
+pub fn login() -> Result<ExitCode, Box<dyn std::error::Error>>{
     println!("Hello User. Are You new here? If YES Click (Y) if No Click (N)");
         let mut input = String::new();
         println!("(Y)/(N): ");
@@ -86,40 +86,41 @@ Please Ensure that the Length is minimum of 8 characters with at least one Cap, 
                 
                 let new_vault =  Vault::new(name, email, password.clone())?;
 
+                input.clear();
+
                 match save_login(new_vault){
                     Ok(_value) => {
                         println!("Vault Created");
+                        return Ok(ExitCode::SUCCESS)
                     }
                     Err(e) => {
                         println!("{e}");
+                        return Ok(ExitCode::FAILURE)
                     }
                 };
-
-                // profile(name, email, vault-id), 
-                // metadata(nonce, salt, cipher_text), 
-                // content, already contains the empty vector for contents
-
-                // Start the saving process from main since save login takes in the vault
-                input.clear();
 
             } else if should_random_generate == "r"{
                 // randomly generates a password
                 let password = generate_password(16);
 
                 let new_vault = Vault::new(name, email, password)?;
-
+                
                 match save_login(new_vault){
                     Ok(_value) => {
                         println!("Vault Created");
+                        return Ok(ExitCode::SUCCESS)
                     }
                     Err(e) => {
                         println!("{e}");
+                        return Ok(ExitCode::FAILURE)
                     }
                 };
                 // Encrypting master password. Saving to the json file called Passwords.json 
+            } else {
+                println!("Invalid Entry");
+                Ok(ExitCode::FAILURE)
             }
 
-            input.clear();
             // Sign-up validate ends here
 
         } else if decision.to_lowercase() == "n"{
@@ -146,11 +147,14 @@ Please Ensure that the Length is minimum of 8 characters with at least one Cap, 
 
             let my_vault = validate_login(email, password.as_str())?.ok_or("Failed to Validate")?;
             
-            println!("Accont Login Successful: Welcome Back {}, id {}", my_vault.vault_profile.name, my_vault.vault_profile.vault_id)
+            println!("Accont Login Successful: Welcome Back {}, id {}", my_vault.vault_profile.name, my_vault.vault_profile.vault_id);
+            return Ok(ExitCode::SUCCESS)
                 
+        }else{
+            println!("Invalid Entry");
+            Ok(ExitCode::SUCCESS)
         }
 
-        Ok(())
 }
 
 pub fn save_login(mut new_vault: Vault) -> Result<(), Box<dyn std::error::Error>> {
@@ -163,13 +167,13 @@ pub fn save_login(mut new_vault: Vault) -> Result<(), Box<dyn std::error::Error>
     }
 
     vaults.push(new_vault);
-    save_vaults(&vaults)
+
+    if let Err(e) = save_vaults(&vaults){
+        println!("Failed to save vault: {e}");
+        return Ok(())
+    };
+    Ok(())
 }
-
-
-pub fn retrieve_content(){}
-
-pub fn add_content(){}
 
 fn normalize_email(email: &str) -> String {
     email.trim().to_lowercase()

@@ -1,10 +1,11 @@
 mod hasher; mod structs; mod generate; mod login; mod sessions;
-use login::{save_login};
+use login::{save_login, validate_session_by_id};
 use generate::{generate_password};
 use structs::{Vault};
 use clap::{Parser, Subcommand};
 use hasher::encrypt_contents;
-use std::process::ExitCode;
+use std::{process::ExitCode, thread::current};
+use sessions::{active_session, require_session, clear_session, create_session,};
 
 
 // to be continued .. lets first work on the cli
@@ -26,7 +27,41 @@ enum Commands{
         password: String,
         
     },
-    StartVault
+    StartVault, 
+    Entry {
+        #[arg(short, long)]
+        password: String,
+
+        #[command(subcommand)]
+        subcommands: CrudOps 
+    }   
+}
+
+#[derive(Debug, Subcommand)]
+enum CrudOps{
+    Read{
+        #[arg(short, long)]
+        password:String,
+        #[arg(short, long)]
+        title: String,
+    }, 
+    Write{
+        #[arg(short, long)]
+        password:String, // this opens the file or a window for editing the contents
+    }, 
+    Delete{
+        #[arg(short, long)]
+        password: String
+    }, // should require adding the secret question and answer
+    Update{
+        #[arg(short, long)]
+        password:String
+    },  
+    Upload{
+        #[arg(short, long)]
+        password: String
+    }, 
+    List{password: String}
 }
 
 
@@ -55,7 +90,36 @@ fn main(){
                 std::process::exit(1); 
             };
             ExitCode:: SUCCESS
-        }
+        }, 
+        Commands::Entry{password, subcommands} => {
+            // uses sessions to derive the vault id here
+
+            let current_session = require_session().unwrap();
+            let vault = validate_session_by_id(current_session.vault_id.clone(), password.as_ref()).unwrap().ok_or("Wrong master_password");
+            // mathching the related commands for the extra crud operations
+            match subcommands{
+                CrudOps::Read{password, title} => {
+                    ExitCode::SUCCESS
+                },
+                CrudOps::Delete { password } => {
+                    ExitCode::SUCCESS
+                },
+                CrudOps::List { password } => {
+                    ExitCode::SUCCESS
+                },
+                CrudOps::Update { password } => {
+                    ExitCode::SUCCESS
+                } ,
+                CrudOps::Upload { password } => {
+                    ExitCode::SUCCESS
+                },
+                CrudOps::Write { password } => {
+                    ExitCode::SUCCESS
+                },
+
+            }
+
+          }
     };
 }
 

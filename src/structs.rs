@@ -68,6 +68,8 @@ pub struct Encryption_data{
 pub struct Content{
     pub id: String,
     pub title: String,
-    pub metadata: Encryption_data
+    pub metadata: Encryption_data,
+    pub secret_question : String,
+    pub secret_answer :String,// process these thing later in the modules for authenticating the edits
 }
 

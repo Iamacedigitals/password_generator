@@ -178,6 +178,9 @@ pub fn save_login(mut new_vault: Vault) -> Result<(), Box<dyn std::error::Error>
 fn normalize_email(email: &str) -> String {
     email.trim().to_lowercase()
 }
+fn normalize_id(id: &str) -> String {
+    id.trim().to_lowercase()
+}
 pub fn validate_login(email: String, master_password: &str) -> Result<Option<Vault>, Box<dyn std::error::Error>> {
     let email = normalize_email(&email);
     let vaults = load_vaults()?;
@@ -185,6 +188,24 @@ pub fn validate_login(email: String, master_password: &str) -> Result<Option<Vau
     let Some(vault) = vaults
         .into_iter()
         .find(|v| normalize_email(&v.vault_profile.email) == email)
+    else {
+        return Ok(None);
+    };
+
+    if decrypt_blob(master_password, &vault)? {
+        Ok(Some(vault))
+    } else {
+        Ok(None)
+    }
+}
+
+pub fn validate_session_by_id(id: String, master_password: &str) -> Result<Option<Vault>, Box<dyn std::error::Error>> {
+    let id = normalize_id(&id);
+    let vaults = load_vaults()?;
+
+    let Some(vault) = vaults
+        .into_iter()
+        .find(|v| normalize_id(&v.vault_profile.vault_id) == id)
     else {
         return Ok(None);
     };

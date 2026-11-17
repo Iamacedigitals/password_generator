@@ -1,5 +1,5 @@
-mod hasher; mod structs; mod generate; mod json_parser;
-use json_parser::{save_login};
+mod hasher; mod structs; mod generate; mod login;
+use login::{save_login};
 use generate::{generate_password};
 use structs::{Vault};
 use clap::{Parser, Subcommand};
@@ -76,8 +76,11 @@ fn main(){
             format!("Created vault")
         },
         Commands::StartVault=>{
-            Vault::start_vault().unwrap();
-            format!("Vault updated")
+            if let Err(e) = Vault::start_vault(){
+                println!("{e}");
+                std::process::exit(1); 
+            };
+            format!("Vault")
         }
         Commands::Decrypt => format!("Decrypted (Password)"),
 
